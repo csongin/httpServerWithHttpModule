@@ -76,6 +76,7 @@ const httpRequestListener = (request, response) => {
         response.end(JSON.stringify({'posts' : posts}));
       });
     }
+    // 게시글 목록 조회하기
   } else if (method === 'GET') {
     if (url === '/posts/postview') {
       for(let i = 0; i < users.length; i++){
