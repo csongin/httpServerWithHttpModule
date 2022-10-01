@@ -26,7 +26,7 @@ const posts = [
     userId: 1,
   },
 ];
-const postView = [];
+const postViews = [];
 
 const http = require('http');
 const server = http.createServer();
@@ -56,7 +56,7 @@ const httpRequestListener = (request, response) => {
       });
     }
     // 게시글 등록하기
-    if (url === '/posts/register') {
+    if (url === '/posts/posting') {
       let body ='';
 
       request.on('data', (data) => {
@@ -78,9 +78,10 @@ const httpRequestListener = (request, response) => {
     }
     // 게시글 목록 조회하기
   } else if (method === 'GET') {
-    if (url === '/posts/postview') {
+    // 게시글 목록 조회하기
+    if (url === '/posts/get') {
       for(let i = 0; i < users.length; i++){
-        postView.push({
+        postViews.push({
           userId: users[i].id,
           userName: users[i].name,
           postingId: posts[i].id,
@@ -90,7 +91,29 @@ const httpRequestListener = (request, response) => {
       }    
     }
     response.writeHead(200, {'Content-Type' : 'application/json'});
-    response.end(JSON.stringify({'data' : postView}));
+    response.end(JSON.stringify({'data' : postViews}));
+  } else if (method === 'PATCH') {
+    // 게시글 수정하기
+    if (url === '/posts/update') {
+      let body ='';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        let postUpdate = {};
+        const inputPost = JSON.parse(body);
+        for (let i = 0; i < postViews.length; i++) {
+          if (inputPost.id === postViews[i].postingId) {
+            postViews[i].postingContent = inputPost.content;
+            postUpdate = postViews[i];
+          }
+        }
+        response.writeHead(200, {'Content-Type' : 'application/json'});
+        response.end(JSON.stringify({'data': postUpdate}));
+      });
+    }
   }
 }
 
