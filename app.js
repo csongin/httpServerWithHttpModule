@@ -27,6 +27,7 @@ const posts = [
   },
 ];
 const postViews = [];
+const userPosts = {};
 
 const http = require('http');
 const server = http.createServer();
@@ -88,10 +89,38 @@ const httpRequestListener = (request, response) => {
           postingTitle: posts[i].title,
           postingContent: posts[i].content,
         });
-      }    
-    }
+      }
     response.writeHead(200, {'Content-Type' : 'application/json'});
-    response.end(JSON.stringify({'data' : postViews}));
+    response.end(JSON.stringify({'data' : postViews}));    
+    }
+    // 유저와 게시글 조회하기
+    if (url === '/users/postget') {
+      let body = '';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        const inputUser = JSON.parse(body);
+        for (let i = 0; i < users.length; i++) {
+          if (inputUser.id === users[i].id) {
+            userPosts.userId =  users[i].id;
+            userPosts.userName = users[i].name;
+            userPosts.postings = [];
+          }
+          if (userPosts.userId === posts[i].userId) {
+            userPosts.postings.push({
+              postingId: posts[i].userId,
+              postingName: posts[i].title,
+              postingContent: posts[i].content,
+            });
+          }
+        }
+        response.writeHead(200, {'Content-Type' : 'application/json'});
+        response.end(JSON.stringify({'data' : userPosts}));
+      });
+    }
   } else if (method === 'PATCH') {
     // 게시글 수정하기
     if (url === '/posts/update') {
@@ -130,7 +159,7 @@ const httpRequestListener = (request, response) => {
             delete posts[i];
           }
         }
-        response.writeHead(200, {'Content-Type' : 'application/json'});
+        response.writeHead(204, {'Content-Type' : 'application/json'});
         response.end(JSON.stringify({'message': 'postingDeleted'}));
       });
     }
