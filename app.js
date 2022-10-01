@@ -114,6 +114,26 @@ const httpRequestListener = (request, response) => {
         response.end(JSON.stringify({'data': postUpdate}));
       });
     }
+  } else if (method === 'DELETE') {
+    // 게시물 삭제하기
+    if (url === '/posts/delete') {
+      let body ='';
+
+      request.on('data', (data) => {
+        body += data;
+      });
+
+      request.on('end', () => {
+        const deletePost = JSON.parse(body);
+        for (let i = 0; i < posts.length; i++) {
+          if (deletePost.id === posts[i].id) {
+            delete posts[i];
+          }
+        }
+        response.writeHead(200, {'Content-Type' : 'application/json'});
+        response.end(JSON.stringify({'message': 'postingDeleted'}));
+      });
+    }
   }
 }
 
